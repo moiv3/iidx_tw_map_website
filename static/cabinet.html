@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cabinet Information</title>
+    <script>
+        // Function to fetch and populate the dropdown menu
+        async function populateDropdown() {
+            const dropdown = document.getElementById("item-select");
+
+            // Fetch the list of items from the backend
+            const response = await fetch("/cabinets/list");
+            const data = await response.json();
+            console.log(data);
+            // Populate the dropdown menu with the received items
+            data.cabinet_list.forEach(item => {
+                const option = document.createElement("option");
+                option.value = item;
+                option.textContent = item.charAt(0).toUpperCase() + item.slice(1);
+                dropdown.appendChild(option);
+            });
+        }
+
+        // Function to fetch data for the selected item
+        async function fetchCabinetList() {
+            const dropdown = document.getElementById("item-select");
+            const selectedValue = dropdown.value;
+
+            // Fetch data from the backend for the selected item
+            const response = await fetch(`/cabinets/${selectedValue}`);
+            const data = await response.json();
+
+            // Update the result div with the response
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerText = `You selected: ${data.cabinet_id}. Result: ${data.result}`;
+        }
+
+        // Populate the dropdown menu when the page loads
+        window.onload = populateDropdown;
+    </script>
+</head>
+<body>
+    <h1>Cabinet Information</h1>
+    <label for="item-select">Choose an item:</label>
+    <select id="item-select">
+        <option value="" disabled selected>Select a cabinet ID:</option>
+    </select>
+    <button onclick="fetchCabinetList()">Fetch Data</button>
+    <div id="result" style="margin-top: 20px;"></div>
+</body>
+</html>

@@ -1,35 +1,119 @@
-cabinets
-id
-game
-type
-cabinet_id
-is_working
-create_time
-update_time
+Table users{
+    id int [pk, increment]
+    email varchar(255) [not null, unique]
+    handle_name varchar(255) [not null]
+    hashed_password varchar(255) [not null]
+    is_editor tinyint(1) [not null]
+    create_time timestamp [not null, default: `now()`]
+    update_time timestamp [not null, default: `now()`]
+}
 
-move_records
-id
-cabinet_id
-from_center
-to_center
-create_time
-update_time
+Table games{
+    id int [pk, increment]
+    name varchar(255) [not null, unique]
+    create_time timestamp [not null, default: `now()`]
+    update_time timestamp [not null, default: `now()`]
+}
 
-game_centers
-id
-name
-address
-lat
-lng
-status
-create_time
-update_time
 
-users
-id
-email
-handle_name
-hashed_password
-is_editor
-create_time
-update_time
+Table cabinets{
+    id int [pk, increment]
+    game_id int [not null]
+    id_on_machine varchar(255)
+    is_working tinyint(1) [not null]
+    create_time timestamp [not null, default: `now()`]
+    update_time timestamp [not null, default: `now()`]
+}
+
+Table game_centers{
+    id int [pk, increment]
+    name varchar(255) [not null, unique]
+    address varchar(255) [not null]
+    lat float [not null]
+    lng float [not null]
+    is_in_business tinyint(1) [not null]
+    remarks varchar(255)
+    create_time timestamp [not null, default: `now()`]
+    update_time timestamp [not null, default: `now()`]
+}
+
+Table move_records{
+    id int [pk, increment]
+    user_id int [not null]
+    cabinet_id int [not null]
+    from_center int [not null]
+    to_center int [not null]
+    remarks varchar(255)
+    check_date date [not null]
+    create_time timestamp [not null, default: `now()`]
+    update_time timestamp [not null, default: `now()`]
+}
+
+Ref fk1: users.id < move_records.user_id
+Ref fk2: games.id < cabinets.game_id
+Ref fk3: cabinets.id < move_records.cabinet_id
+Ref fk4: game_centers.id < move_records.from_center
+Ref fk5: game_centers.id < move_records.to_center
+
+
+
+
+CREATE TABLE `users` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `email` varchar(255) UNIQUE NOT NULL,
+  `handle_name` varchar(255) NOT NULL,
+  `hashed_password` varchar(255) NOT NULL,
+  `is_editor` tinyint(1) NOT NULL,
+  `create_time` timestamp DEFAULT now(),
+  `update_time` timestamp DEFAULT now() ON UPDATE now()
+);
+
+CREATE TABLE `games` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `name` varchar(255) UNIQUE NOT NULL,
+  `create_time` timestamp DEFAULT now(),
+  `update_time` timestamp DEFAULT now() ON UPDATE now()
+);
+
+CREATE TABLE `cabinets` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `game_id` int NOT NULL,
+  `id_on_machine` varchar(255),
+  `is_working` tinyint(1) NOT NULL,
+  `create_time` timestamp DEFAULT now(),
+  `update_time` timestamp DEFAULT now() ON UPDATE now()
+);
+
+CREATE TABLE `game_centers` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `name` varchar(255) UNIQUE NOT NULL,
+  `address` varchar(255) NOT NULL,
+  `lat` float NOT NULL,
+  `lng` float NOT NULL,
+  `is_in_business` tinyint(1) NOT NULL,
+  `remarks` varchar(255),
+  `create_time` timestamp DEFAULT now(),
+  `update_time` timestamp DEFAULT now() ON UPDATE now()
+);
+
+CREATE TABLE `move_records` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `cabinet_id` int NOT NULL,
+  `from_center` int NOT NULL,
+  `to_center` int NOT NULL,
+  `remarks` varchar(255),
+  `check_date` date NOT NULL,
+  `create_time` timestamp DEFAULT now(),
+  `update_time` timestamp DEFAULT now() ON UPDATE now()
+);
+
+ALTER TABLE `move_records` ADD CONSTRAINT `fk1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+ALTER TABLE `cabinets` ADD CONSTRAINT `fk2` FOREIGN KEY (`game_id`) REFERENCES `games` (`id`);
+
+ALTER TABLE `move_records` ADD CONSTRAINT `fk3` FOREIGN KEY (`cabinet_id`) REFERENCES `cabinets` (`id`);
+
+ALTER TABLE `move_records` ADD CONSTRAINT `fk4` FOREIGN KEY (`from_center`) REFERENCES `game_centers` (`id`);
+
+ALTER TABLE `move_records` ADD CONSTRAINT `fk5` FOREIGN KEY (`to_center`) REFERENCES `game_centers` (`id`);
